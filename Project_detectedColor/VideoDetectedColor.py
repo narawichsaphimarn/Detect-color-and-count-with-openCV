@@ -11,6 +11,9 @@ sen = 0
 minArea=1
 lineCount = 500
 counter = 0
+frame_width = int(cap.get(3))
+frame_height = int(cap.get(4))
+out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 30, (frame_width,frame_height))
    
 # Check if camera opened successfully 
 if (cap.isOpened()== False):  
@@ -74,10 +77,12 @@ while(cap.isOpened()):
                 counter=counter+1
        
 
-    cv2.line(frame,(0,lineCount),(500,lineCount),(0,100,0),2)
+    cv2.line(frame,(0,lineCount),(500,lineCount),(0,255,0),2)
     font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(frame,'Count Red = '+str(counter), (10,30),font,1, (255, 0, 0), 2)
+    cv2.putText(frame,'Count Red = '+str(counter), (10,30),font,1, (255,255,0), 2)
 
+    # Write the frame into the file 'output.avi'
+    out.write(frame)
     # Display the resulting frame 
     cv2.imshow('Frame', frame)
    
@@ -92,6 +97,6 @@ while(cap.isOpened()):
 # When everything done, release  
 # the video capture object 
 cap.release() 
-   
+out.release()
 # Closes all the frames 
 cv2.destroyAllWindows() 
