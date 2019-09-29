@@ -27,20 +27,37 @@ while(cap.isOpened()):
     open_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7,7))
     close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
 
-    COLOR_MIN = np.array([0,50,50],np.uint8)      
-    COLOR_MAX = np.array([20,255,255],np.uint8)
+    # COLOR_MIN = np.array([0,50,50],np.uint8)      
+    # COLOR_MAX = np.array([20,255,255],np.uint8)
 
-    frame_threshed = cv2.inRange(image, COLOR_MIN, COLOR_MAX)
-    imgray = frame_threshed
-    cv2.imshow('Frame2', imgray)
-    ret,thresh = cv2.threshold(frame_threshed,127,255,0)
+    #กำหนดชิ้นงานที่จะนับตามสี
+    # frame_threshed = cv2.inRange(image, COLOR_MIN, COLOR_MAX)
+    # imgray = frame_threshed
+    # cv2.imshow('Frame2', imgray)
+
+    # lowwer led
+    lower_red = np.array([0,50,50])
+    upper_red = np.array([10,255,255])
+    #upper red
+    lower_red2 = np.array([170,50,50])
+    upper_red2 = np.array([180,255,255])
+    mask = cv2.inRange(image, lower_red, upper_red)
+    res = cv2.bitwise_and(frame,frame, mask= mask)
+    mask2 = cv2.inRange(image, lower_red2, upper_red2)
+    res2 = cv2.bitwise_and(frame,frame, mask= mask2)
+    mask = mask+mask2
+    img3 = res+res2
+    # cv2.imshow('img3', img3)
+
+    ret,thresh = cv2.threshold(mask,127,255,0)
     contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours:
-        x,y,w,h = cv2.boundingRect(cnt)
-        cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
+          x,y,w,h = cv2.boundingRect(cnt)
+          cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
 
-    fgmask = backsub.apply(imgray, None, 0.01)
-    cv2.imshow("blacksup",fgmask)
+    #นับจำนวนชิ้นงาน
+    fgmask = backsub.apply(img3, None, 0.01)
+    # cv2.imshow("blacksup",fgmask)
     erode=cv2.erode(fgmask,None,iterations=3)
     moments=cv2.moments(erode,True)         
     area=moments['m00']
@@ -59,7 +76,7 @@ while(cap.isOpened()):
 
     cv2.line(frame,(0,lineCount),(500,lineCount),(0,100,0),2)
     font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(frame,'Red count = '+str(counter), (10,30),font,1, (255, 0, 0), 2)
+    cv2.putText(frame,'Count Red = '+str(counter), (10,30),font,1, (255, 0, 0), 2)
 
     # Display the resulting frame 
     cv2.imshow('Frame', frame)
